@@ -117,6 +117,13 @@ it passes the test in Phase 5.**
    validator scripts; they may have missing dependencies and their crash can masquerade as a
    broken skill.
 
+**Authoring craft (apply these as you write the skill; this is where a generated skill earns its quality):**
+
+- **The `description` is the trigger, so get it right.** It is the only thing Claude reads to decide whether to run the skill, so put *what it does and when to use it* there, naming the owner's real phrasings and moments. Lean slightly pushy: skills tend to under-trigger, so spell out "use this whenever the owner mentions X, Y, or Z, even if they don't ask for it by name." Keep it under 1024 characters with no `<` or `>`.
+- **Bundle deterministic steps as scripts.** Any step that runs the same way every time, or that proved error-prone, belongs in the skill's `scripts/` folder as a small script the skill calls, not as prose. It runs the same way every time, which is the whole point for someone who cannot debug it.
+- **Keep the body lean.** Common path in the body, long detail in `references/` read only when needed, deterministic work in `scripts/`. A leaner skill runs faster and costs less every time it runs.
+- **Mechanical check before you move on (just read the file, no external tool):** `name` is kebab-case and 64 characters or fewer; `description` is 1024 characters or fewer with no `<` or `>`; the only frontmatter keys are name, description, and optionally license, allowed-tools, metadata, or compatibility; §0, the §3 preview, and §7 are all present. Fix anything that fails before testing.
+
 ### Phase 5 — Test it before handing it over
 Tell the client, plainly: *"Before I give this to you, I'll test it myself by pretending to be
 you and running it once — takes a minute, makes sure it won't break on you."* Then:
@@ -131,6 +138,8 @@ you and running it once — takes a minute, makes sure it won't break on you."* 
 3. For any step needing the client's real credentials or connections (which the test won't
    have), the pass condition is that the skill **fails gracefully and explains itself** — not
    that it completes a live call.
+**Trigger sanity-check.** Before grading, write 2 or 3 phrasings the owner would really say that *should* launch this skill, plus 1 or 2 near-miss phrasings that should *not*. Confirm the `description` would fire on the first set and stay quiet on the second. Skills usually fail by never triggering at all, so this catches the most common failure for almost no effort; if it misfires, tighten the `description` and re-check.
+
 4. **Grade the run against this checklist:** did §0 intake run and confirm the must-have inputs ·
    did each §2 step execute or fail gracefully · did the §3 checkpoints (including the
    preview-before-acting) fire · did it pause-and-ask when unsure rather than guess · did any
